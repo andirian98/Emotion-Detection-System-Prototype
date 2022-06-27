@@ -1,0 +1,7 @@
+
+
+ Y_pred = model.predict(test_validation_generator)
+    y_pred = np.argmax(Y_pred[2], axis=1)
+    labels = np.loadtxt('synset_words.txt', str, delimiter='\t')
+    predicted_class_name = labels[y_pred]
+    print('Predicted Class: ', y_pred, ', Class Name: ', predicted_class_name)
