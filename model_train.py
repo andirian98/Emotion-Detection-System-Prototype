@@ -1,6 +1,7 @@
-from tensorflow.keras.optimizers import Adam
+#from tensorflow.keras.optimizers import Adam
 #from keras.optimizers import Adam, SGD
-from keras.preprocessing.image import ImageDataGenerator
+#from keras.preprocessing.image import ImageDataGenerator #depreciated
+import tensorflow as tf
 import keras
 import os
 from keras import regularizers
@@ -8,26 +9,53 @@ from keras import regularizers
 def train_app(folder,filename,size_batch,size_epoch,rate_learn):
         num_classes = 7
         img_rows, img_cols = 48, 48
-        batch_size = size_batch
-
+        #batch_size = size_batch
         train_dir = folder + '/train'
         val_dir = folder + '/test'
-        train_datagen = ImageDataGenerator(rescale=1./255)
-        val_datagen = ImageDataGenerator(rescale=1./255)
 
-        train_generator = train_datagen.flow_from_directory(
+        #performing data augmentation
+        def rescale_images(image, label):
+                image = tf.cast(image, tf.float32) / 255.0
+                return image, label
+
+        train_datagen = keras.preprocessing.image_dataset_from_directory(
                 train_dir,
-                target_size=(img_rows,img_cols),
-                batch_size=size_batch,
-                color_mode="grayscale",
-                class_mode='categorical')
+                image_size = (img_rows, img_cols),
+                batch_size = size_batch,
+                color_mode = "grayscale",
+                label_mode = "categorical"
+        )
 
-        validation_generator = val_datagen.flow_from_directory(
+        val_datagen = keras.preprocessing.image_dataset_from_directory(
                 val_dir,
-                target_size=(48,48),
-                batch_size=size_batch,
-                color_mode="grayscale",
-                class_mode='categorical')
+                image_size = (img_rows, img_cols),
+                batch_size = size_batch,
+                color_mode = "grayscale",
+                label_mode = "categorical"
+        )
+
+        train_generator = train_datagen.map(rescale_images)
+        validation_generator = val_datagen.map(rescale_images)
+
+        #below is old code, depreciated
+        """
+                train_datagen = ImageDataGenerator(rescale=1./255)
+                val_datagen = ImageDataGenerator(rescale=1./255)
+
+                train_generator = train_datagen.flow_from_directory(
+                        train_dir,
+                        target_size=(img_rows,img_cols),
+                        batch_size=size_batch,
+                        color_mode="grayscale",
+                        class_mode='categorical')
+
+                validation_generator = val_datagen.flow_from_directory(
+                        val_dir,
+                        target_size=(48,48),
+                        batch_size=size_batch,
+                        color_mode="grayscale",
+                        class_mode='categorical')
+        """
 
         emotion_model = keras.models.Sequential([
                 # 1st Block
@@ -90,7 +118,7 @@ def train_app(folder,filename,size_batch,size_epoch,rate_learn):
                 # 7th Block
                 keras.layers.Dense(num_classes, kernel_initializer='he_normal', activation='softmax'),
         ])
-        emotion_model.compile(loss='categorical_crossentropy',optimizer=Adam(lr=rate_learn, decay=1e-6),metrics=['accuracy'])
+        emotion_model.compile(loss='categorical_crossentropy',optimizer=keras.optimizers.Adam(lr=rate_learn, decay=1e-6),metrics=['accuracy'])
 
         totalDir = 0
         totalFiles = 0

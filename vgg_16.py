@@ -1,7 +1,10 @@
 import keras
-from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.optimizers import SGD
-from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
+import tensorflow as tf
+#import tensorflow.keras
+#from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
+#from keras.preprocessing.image import ImageDataGenerator
+#from tensorflow.keras.optimizers import SGD
+#from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
 import os
 import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, confusion_matrix
@@ -17,6 +20,31 @@ def main_vgg(folder,filename,size_batch,size_epoch,rate_learn):
     validation_data_dir = folder + '/test/'
 
     #performing data augmentation
+    def rescale_images(image, label):
+        image = tf.cast(image, tf.float32) / 255.0
+        return image, label
+
+    train_datagen = keras.preprocessing.image_dataset_from_directory(
+        train_data_dir,
+        image_size=(img_rows, img_cols),
+        batch_size=size_batch,
+        color_mode="grayscale",
+        label_mode="categorical"
+    )
+
+    val_datagen = keras.preprocessing.image_dataset_from_directory(
+        validation_data_dir,
+        image_size=(img_rows, img_cols),
+        batch_size=size_batch,
+        color_mode="grayscale",
+        label_mode="categorical"
+    )
+
+    train_generator = train_datagen.map(rescale_images)
+    test_validation_generator = val_datagen.map(rescale_images)
+
+    #below is old code, depreciated
+    """
     train_datagenerate = ImageDataGenerator(rescale=1./255, rotation_range=30, shear_range=0.3, zoom_range=0.3,
                                             width_shift_range=0.4,
                                             height_shift_range=0.4, horizontal_flip=True, fill_mode='nearest')
@@ -32,6 +60,7 @@ def main_vgg(folder,filename,size_batch,size_epoch,rate_learn):
                                                                                  target_size=(img_rows, img_cols),
                                                                                  batch_size=batch_size,
                                                                                  class_mode='categorical',shuffle=False)
+    """
 
     model = keras.models.Sequential([
         # 1st Block
@@ -96,32 +125,32 @@ def main_vgg(folder,filename,size_batch,size_epoch,rate_learn):
     ])
     print(model.summary())
 
-    checkpoint = ModelCheckpoint(filename,
+    checkpoint = keras.callbacks.ModelCheckpoint(filename,
                                  monitor='val_accuracy',
                                  mode='auto',
                                  save_best_only=True,
                                  save_weights_only=False,
                                  verbose=1)
 
-    earlystop = EarlyStopping(monitor='val_accuracy',
+    earlystop = keras.callbacks.EarlyStopping(monitor='val_accuracy',
                               min_delta=0,
                               patience=size_epoch,
                               verbose=1,
                               mode='auto',
                               restore_best_weights=True)
 
-    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy',
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_accuracy',
                                   factor=0.2,
                                   patience=size_epoch,
                                   verbose=1,
                                   min_delta=0.0001)
 
-    csv_logger = CSVLogger("vgg16_result.csv", append=True)
+    csv_logger = keras.callbacks.CSVLogger("vgg16_result.csv", append=True)
 
     callbacks = [earlystop, checkpoint, reduce_lr, csv_logger]
 
     model.compile(loss='categorical_crossentropy',
-                  loss_weights=0.3, optimizer=SGD(learning_rate=rate_learn, momentum=0.9, nesterov=True),
+                  loss_weights=0.3, optimizer=keras.optimizers.SGD(learning_rate=rate_learn, momentum=0.9, nesterov=True),
                   metrics=['accuracy'])
 
     totalDir = 0

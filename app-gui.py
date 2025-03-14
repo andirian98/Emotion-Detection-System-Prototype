@@ -64,7 +64,7 @@ class StartPage(tk.Frame):
         self['background'] = 'white'
         self.controller = controller
         load = Image.open("Untitled-2.png")
-        load = load.resize((250, 250), Image.ANTIALIAS)
+        load = load.resize((250, 250), Image.Resampling.LANCZOS) #ANTIALIAS is depreciated
         render = PhotoImage(file='Untitled-2.png')
         img = tk.Label(self, image=render)
         img.image = render
@@ -95,7 +95,7 @@ class PageOne(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         load2 = Image.open("Untitled-3.png")
-        load2 = load2.resize((250, 250), Image.ANTIALIAS)
+        load2 = load2.resize((250, 250), Image.Resampling.LANCZOS) #ANTIALIAS is depreciated
         render2 = PhotoImage(file='Untitled-3.png')
         img1 = tk.Label(self, image=render2)
         img1.image = render2
@@ -135,7 +135,7 @@ class PageTwo(tk.Frame):
         global names
         self.controller = controller
         load4 = Image.open("Untitled-4.png")
-        load4 = load4.resize((250, 250), Image.ANTIALIAS)
+        load4 = load4.resize((250, 250), Image.Resampling.LANCZOS)
         render4 = PhotoImage(file='Untitled-4.png')
         img3 = tk.Label(self, image=render4)
         img3.image = render4
@@ -174,7 +174,7 @@ class PageThree(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         load3 = Image.open("Untitled-1.png")
-        load3 = load3.resize((250, 250), Image.ANTIALIAS)
+        load3 = load3.resize((250, 250), Image.Resampling.LANCZOS)
         render3 = PhotoImage(file='Untitled-1.png')
         img2 = tk.Label(self, image=render3)
         img2.image = render3
@@ -246,7 +246,7 @@ class PageFour(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         load3 = Image.open("Untitled-1.png")
-        load3 = load3.resize((250, 250), Image.ANTIALIAS)
+        load3 = load3.resize((250, 250), Image.Resampling.LANCZOS)
         render3 = PhotoImage(file='Untitled-1.png')
         img2 = tk.Label(self, image=render3)
         img2.image = render3
@@ -330,7 +330,7 @@ app = MainUI()
 # icon1 = ImageTk.PhotoImage(file = 'C:/Users/User/Documents/UiTM/FSKM/CS259/Sem 6 Sub/CSP 650/CSP 650 Prototype/Facial Expression Detection System Prototype/Emotion Detector System/icon-2.ico')
 root = tk.Tk()
 image = Image.open(
-    r"C:\Users\User\Documents\My Documents\UiTM\FSKM\CS259\Sem 6 Sub\CSP 650\CSP 650 Prototype\Facial Expression Detection System Prototype\Emotion Detector System\icon-2.ico")
+    r"F:\My Documents\UiTM\FSKM\CS259\Sem 6 Sub\CSP 650\CSP 650 Prototype\Facial Expression Detection System Prototype\Emotion Detector System\icon-2.ico")
 icon1 = ImageTk.PhotoImage(image)
 app.iconphoto(False, icon1)
 app.mainloop()

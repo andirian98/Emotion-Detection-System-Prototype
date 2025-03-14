@@ -1,5 +1,7 @@
-from keras.models import load_model
-from keras.preprocessing.image import img_to_array
+#from keras.models import load_model
+#from tensorflow.keras.utils import img_to_array
+#from keras.preprocessing.image import img_to_array
+import keras
 import cv2
 import numpy as np
 import pandas as pd
@@ -25,7 +27,7 @@ def create_folder(name):
 def main_app(name):
 
     face_classifier = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
-    classifier = load_model('./model_little_vgg.h5')
+    classifier = keras.models.load_model('./model_little_vgg.h5')
 
     class_labels = ['Angry','Disgust','Fearful','Happy','Neutral','Sad','Surprised']
 
@@ -59,7 +61,7 @@ def main_app(name):
 
             if np.sum([roi_gray])!=0:
                 roi = roi_gray.astype('float')/255.0
-                roi = img_to_array(roi)
+                roi = keras.utils.img_to_array(roi)
                 roi = np.expand_dims(roi,axis=0)
 
             #make a prediction on the ROI, then  lookup the class

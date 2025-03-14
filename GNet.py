@@ -1,11 +1,12 @@
 import keras
-from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.optimizers import Adam, SGD
+import tensorflow as tf
+#from keras.preprocessing.image import ImageDataGenerator
+#from tensorflow.keras.optimizers import Adam, SGD
 #from keras.optimizers import SGD, Adam
-from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
+#from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
 import os
 import matplotlib.pyplot as plt
-from keras.models import Model
+#from keras.models import Model
 from keras import regularizers
 from sklearn.metrics import classification_report, confusion_matrix, precision_score, f1_score, recall_score, precision_recall_fscore_support
 import numpy as np
@@ -18,6 +19,32 @@ def main_googlenet(folder,filename,size_batch,size_epoch,rate_learn):
     train_data_dir = folder + '/train'
     validation_data_dir = folder + '/test'
 
+    # performing data augmentation
+    def rescale_images(image, label):
+        image = tf.cast(image, tf.float32) / 255.0
+        return image, label
+
+    train_datagen = keras.preprocessing.image_dataset_from_directory(
+        train_data_dir,
+        image_size=(img_rows, img_cols),
+        batch_size=size_batch,
+        color_mode="grayscale",
+        label_mode="categorical"
+    )
+
+    val_datagen = keras.preprocessing.image_dataset_from_directory(
+        validation_data_dir,
+        image_size=(img_rows, img_cols),
+        batch_size=size_batch,
+        color_mode="grayscale",
+        label_mode="categorical"
+    )
+
+    train_generator = train_datagen.map(rescale_images)
+    test_validation_generator = val_datagen.map(rescale_images)
+
+    # below is old code, depreciated
+    """
     train_datagenerate = ImageDataGenerator(rescale=1./255, rotation_range=30, shear_range=0.3, zoom_range=0.3,
                                             width_shift_range=0.4,
                                             height_shift_range=0.4, horizontal_flip=True, fill_mode='nearest')
@@ -35,7 +62,7 @@ def main_googlenet(folder,filename,size_batch,size_epoch,rate_learn):
                                                                                  batch_size=batch_size,
                                                                                  class_mode='categorical',
                                                                                  shuffle=False)
-
+    """
     kernel_init = keras.initializers.glorot_uniform()
     bias_init = keras.initializers.Constant(value=0.2)
 
@@ -184,35 +211,35 @@ def main_googlenet(folder,filename,size_batch,size_epoch,rate_learn):
 
     x = keras.layers.Dense(num_classes, activation='softmax', name='output')(x)
 
-    model = Model(input_layer, [x, x1, x2], name='inception_v1')
+    model = keras.models.Model(input_layer, [x, x1, x2], name='inception_v1')
 
     model.summary()
 
-    model = Model(input_layer, [x, x1, x2], name='inception_v1')
+    model = keras.models.Model(input_layer, [x, x1, x2], name='inception_v1')
 
     model.summary()
 
-    checkpoint = ModelCheckpoint(filename,
+    checkpoint = keras.callbacks.ModelCheckpoint(filename,
                                  monitor='output_accuracy',
                                  mode='auto',
                                  save_best_only=True,
                                  save_weights_only=False,
                                  verbose=1)
 
-    earlystop = EarlyStopping(monitor='output_accuracy',
+    earlystop = keras.callbacks.EarlyStopping(monitor='output_accuracy',
                               min_delta=0,
                               patience=size_epoch,
                               verbose=1,
                               mode='auto',
                               restore_best_weights=True)
 
-    reduce_lr = ReduceLROnPlateau(monitor='output_accuracy',
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='output_accuracy',
                                   factor=0.2,
                                   patience=size_epoch,
                                   verbose=1,
                                   min_delta=0.0001)
 
-    csv_logger = CSVLogger("GoogleNet_result.csv", append=True)
+    csv_logger = keras.callbacks.CSVLogger("GoogleNet_result.csv", append=True)
 
     callbacks = [earlystop, checkpoint, reduce_lr, csv_logger]
 
@@ -220,7 +247,7 @@ def main_googlenet(folder,filename,size_batch,size_epoch,rate_learn):
     # categorical_crossentropy -  if you have one-hot encoded your target in order to have 2D shap
     # sparse_categorical_crossentropy - if you have 1D integer encoded target
     model.compile(loss=['categorical_crossentropy', 'categorical_crossentropy', 'categorical_crossentropy'],
-                  loss_weights=[1, 0.3, 0.3], optimizer=SGD(lr=rate_learn, momentum=0.9, nesterov=True),
+                  loss_weights=[1, 0.3, 0.3], optimizer=keras.optimizers.SGD(lr=rate_learn, momentum=0.9, nesterov=True),
                   metrics=['accuracy'])
 
     totalDir = 0

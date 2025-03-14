@@ -1,6 +1,7 @@
+#from keras.models import load_model
 import numpy as np
 import cv2
-from keras.models import load_model
+import keras
 
 def test_cam_app():
 
@@ -8,7 +9,7 @@ def test_cam_app():
 
     emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
 
-    emotion_model = load_model('./model_little_vgg.h5')
+    emotion_model = keras.models.load_model('./model_little_vgg.h5')
 
     cap = cv2.VideoCapture(0)
     while True:
