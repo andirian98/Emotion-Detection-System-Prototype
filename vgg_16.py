@@ -60,68 +60,75 @@ def main_vgg(folder,filename,size_batch,size_epoch,rate_learn):
                                                                                  target_size=(img_rows, img_cols),
                                                                                  batch_size=batch_size,
                                                                                  class_mode='categorical',shuffle=False)
+                                                                                 
+    data_augmentation = keras.models.Sequential([
+        keras.layers.Rescaling(1. / 255),
+        keras.layers.RandomFlip("horizontal_and_vertical"),
+        keras.layers.RandomRotation(0.2),
+        keras.layers.RandomZoom(0.2),
+        keras.layers.RandomTranslation(height_factor=0.4, width_factor=0.4)
+    ])
     """
-
     model = keras.models.Sequential([
-        # 1st Block
-        keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
-        # 2nd Block
-        keras.layers.Conv2D(filters=64, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=64, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
-        # 3rd Block
-        keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
-        # 4th Block
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
-        # 5th Block
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
-                            input_shape=(img_rows, img_cols, 1), activation='elu'),
-        keras.layers.BatchNormalization(),
-        keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
-        # Fully Connected Layer (FCL)
-        # 5th Block
-        keras.layers.Flatten(),
-        keras.layers.Dense(64, activation='elu', kernel_initializer='he_normal',
-                           kernel_regularizer=regularizers.l2(0.001)),
-        # 6th Block
-        keras.layers.Dense(64, activation='elu', kernel_initializer='he_normal',
-                           kernel_regularizer=regularizers.l2(0.001)),
-        # 7th Block
-        keras.layers.Dense(num_classes, kernel_initializer='he_normal', activation='softmax'),
+            # 1st Block
+            keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=32, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
+            # 2nd Block
+            keras.layers.Conv2D(filters=64, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=64, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
+            # 3rd Block
+            keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=128, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
+            # 4th Block
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
+            # 5th Block
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', kernel_initializer='he_normal',
+                                input_shape=(img_rows, img_cols, 1), activation='elu'),
+            keras.layers.BatchNormalization(),
+            keras.layers.MaxPool2D(pool_size=(2, 2), strides=(2, 2)),
+            # Fully Connected Layer (FCL)
+            # 5th Block
+            keras.layers.Flatten(),
+            keras.layers.Dense(64, activation='elu', kernel_initializer='he_normal',
+                               kernel_regularizer=regularizers.l2(0.001)),
+            # 6th Block
+            keras.layers.Dense(64, activation='elu', kernel_initializer='he_normal',
+                               kernel_regularizer=regularizers.l2(0.001)),
+            # 7th Block
+            keras.layers.Dense(num_classes, kernel_initializer='he_normal', activation='softmax'),
     ])
     print(model.summary())
 
